@@ -1,10 +1,10 @@
 import React from 'react';
-import Jumbotron from './Jumbotron.js';
+import ImageUploadForm from './ImageUploadForm.js';
 
 let Home = React.createClass({
   render() {
     return(
-      <Jumbotron/>
+      <ImageUploadForm/>
     );
   }
 });
