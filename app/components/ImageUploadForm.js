@@ -8,8 +8,9 @@ let ImageUploadForm = React.createClass({
   getInitialState: function() {
     return {
       descriptionList: [],
-      descriptionIndex: -1,
-      description: ''
+      descriptionIndex: 0,
+      description: '',
+      listTemplate: []
     };
   },
   componentDidMount: function() {
@@ -21,21 +22,47 @@ let ImageUploadForm = React.createClass({
           descriptionList: response
         });
         that.selectDescription();
-        setInterval(that.selectDescription, 2000);
       }
     );
 
     $('#upload-form-dropdown').dropdown();
   },
   selectDescription: function() {
-    if (this.state.descriptionIndex < this.state.descriptionList.length - 1) {
-      this.state.descriptionIndex++;
-    } else {
-      this.state.descriptionIndex = 0;
+
+    var bucketItems = this.state.descriptionList;
+    var contents = [];
+    for (var i = 1; i < bucketItems.length; i++) {
+      contents.push(this.state.descriptionList[i]);
     }
 
     this.setState({
-      description: this.state.descriptionList[this.state.descriptionIndex]
+      description: this.state.descriptionList[this.state.descriptionIndex],
+      listTemplate: contents.map(function(data){
+        var image = 'https://s3.amazonaws.com/sotp-media/'+data.Key;
+        var d = new Date(data.LastModified);
+        var day = d.getDay();
+        var month = d.getMonth();
+        var year = d.getFullYear();
+        return [
+          <tr>
+            <td>
+              <div className="ui items">
+                <div className="item">
+                  <div className="image">
+                    <img src={image} />
+                  </div>
+                  <div className="middle aligned content">
+                    {data.Key.replace('stuff/', '')}
+                  </div>
+                </div>
+              </div>
+            </td>
+            <td>Lambo Page</td>
+            <td>{data.Size}kb</td>
+            <td>{day}/{month}/{year}</td>
+          </tr>
+        ];
+      })
     });
   },
   dropdownChanged: function(event) {
@@ -79,57 +106,7 @@ let ImageUploadForm = React.createClass({
             </tr>
           </thead>
           <tbody>
-            <tr>
-              <td>
-                <div className="ui items">
-                  <div className="item">
-                    <div className="image">
-                      <img src="http://placehold.it/150x150"></img>
-                    </div>
-                    <div className="middle aligned content">
-                      filename.jpg
-                    </div>
-                  </div>
-                </div>
-              </td>
-              <td>Page Name Here</td>
-              <td>190kb</td>
-              <td>04/10/2015</td>
-            </tr>
-            <tr>
-              <td>
-                <div className="ui items">
-                  <div className="item">
-                    <div className="image">
-                      <img src="http://placehold.it/150x150"></img>
-                    </div>
-                    <div className="middle aligned content">
-                      filename.jpg
-                    </div>
-                  </div>
-                </div>
-              </td>
-              <td>Page Name Here</td>
-              <td>190kb</td>
-              <td>04/10/2015</td>
-            </tr>
-            <tr>
-              <td>
-                <div className="ui items">
-                  <div className="item">
-                    <div className="image">
-                      <img src="http://placehold.it/150x150"></img>
-                    </div>
-                    <div className="middle aligned content">
-                      filename.jpg
-                    </div>
-                  </div>
-                </div>
-              </td>
-              <td>Page Name Here</td>
-              <td>190kb</td>
-              <td>04/10/2015</td>
-            </tr>
+            {this.state.listTemplate}
           </tbody>
         </table>
       </div>

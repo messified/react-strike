@@ -8,6 +8,17 @@ var app = express();
 var isProduction = process.env.NODE_ENV === 'production';
 var port = isProduction ? 8080 : 3000;
 var publicPath = path.resolve(__dirname, 'public');
+var AWS = require('aws-sdk');
+
+/**
+ * Bucket Region
+ * @type {string}
+ */
+AWS.config.region = 'us-east-1';
+
+//TODO move auth to hidden config file
+AWS.config.accessKeyId = '';
+AWS.config.secretAccessKey = '';
 
 app.use(express.static(publicPath));
 
@@ -33,5 +44,15 @@ app.listen(port, function () {
 });
 
 app.get('/api/listImages', function(req, res) {
-  res.send(['Eats', 'Sleeps', 'Dreams', 'Lives']);
+  var s3 = new AWS.S3();
+  var params = {
+    Bucket: 'sotp-media',
+    EncodingType: 'url',
+    Prefix: 'stuff/'
+  };
+
+  s3.listObjects(params, function(err, data) {
+    if (err) console.log(err, err.stack);
+    else res.send(data.Contents);
+  });
 });
